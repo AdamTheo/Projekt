@@ -3,6 +3,7 @@ import model.Line;
 import model.Point;
 import model.Polygon;
 
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +29,16 @@ public class PolygonRasterize
 
         }
 
+    }
+    public Line newLine(Polygon polygon,int x, int y){
+        polygonList = polygon.getPoints();
+        int tmp = polygonList.size() - 1;
+        Line line;
+        line = new Line(polygonList.get(0).getX(), polygonList.get(0).getY(), x, y);
+        lineRasterizer.rasterize(line);
+        line = new Line(polygonList.get(tmp).getX(), polygonList.get(tmp).getY(), x, y);
+        lineRasterizer.rasterize(line);
+        return line;
     }
 
 }

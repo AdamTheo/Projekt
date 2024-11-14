@@ -78,11 +78,13 @@ public class Controller2d {
                 }
 
                 if (mode == 2 && polygonList.size() != 0) { // Vykreslovani car vedoucich k novemu vrcholu
-                    int tmp = polygonList.size() - 1;
+                    /*int tmp = polygonList.size() - 1;
                     line = new Line(polygonList.get(0).getX(), polygonList.get(0).getY(), e.getX(), e.getY());
                     lineRasterize.rasterize(line);
                     line = new Line(polygonList.get(tmp).getX(), polygonList.get(tmp).getY(), e.getX(), e.getY());
                     lineRasterize.rasterize(line);
+                    */
+                    line = polygonRasterize.newLine(polygon,e.getX(), e.getY());
                 }
 
                 panel.repaint();
