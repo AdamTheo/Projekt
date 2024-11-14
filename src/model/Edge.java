@@ -45,6 +45,13 @@ public class Edge {
             return false;
         }
     }
+    public boolean isIntersectionAdvanced(int x, int y){
+        if(y >= y1 && y < y2 && x >= x1){
+            return true;
+        }else{
+            return false;
+        }
+    }
 
     public int intersectionX(int y){
         if(x1 == x2){
