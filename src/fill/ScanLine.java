@@ -15,6 +15,7 @@ public class ScanLine implements Filler {
     private Polygon polygon;
     private int minY;
     private int maxY;
+    List<Integer> intersections;
 
     public ScanLine(PolygonRasterize polygonRasterize, LineRasterize lineRasterize, Polygon polygon) {
         this.polygonRasterize = polygonRasterize;
@@ -49,7 +50,7 @@ public class ScanLine implements Filler {
         }
         for(int y = minY; y <= maxY; y++) {
 
-            List<Integer> intersections = new ArrayList<>();
+            intersections = new ArrayList<>();
 
             for (Edge edge : edges) {
                 if(edge.isIntersection(y)){
@@ -57,7 +58,8 @@ public class ScanLine implements Filler {
                 }
             }
 
-            Collections.sort(intersections);
+            //Collections.sort(intersections);
+            sortIntersections(0,intersections.size()-1);
 
             for(int i = 0; i<intersections.size()-1; i += 2){
                 lineRasterize.rasterize(new Line(intersections.get(i),y, intersections.get(i+1),y ));
@@ -69,5 +71,33 @@ public class ScanLine implements Filler {
         }
 
 
+    }
+    public void sortIntersections(int start, int end) { // POuzijeme rekurzivni quicksort
+        if (start < end) {
+            int index = divide(start, end);
+
+            sortIntersections(start, index - 1);
+            sortIntersections(index + 1, end);
+        }
+    }
+    public int divide(int start, int end) {
+        int pivot = intersections.get(end);
+        int i = start-1;
+
+        for (int j = start; j < end; j++) {
+            if (intersections.get(j) <= pivot) {
+                i++;
+
+                int tmp = intersections.get(i);
+                intersections.set(i, intersections.get(j));
+                intersections.set(j,tmp);
+            }
+        }
+
+        int tmp = intersections.get(i+1);
+        intersections.set(i+1, intersections.get(end));
+        intersections.set(end,tmp);
+
+        return i+1;
     }
 }

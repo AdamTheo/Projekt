@@ -8,6 +8,7 @@ import rasterizers.LineTrivial;
 import rasterizers.PolygonRasterize;
 import fill.SeedFill;
 import fill.ScanLine;
+import model.Pentagon;
 
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -15,6 +16,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
+
 
 
 public class Controller2d {
@@ -30,6 +32,7 @@ public class Controller2d {
     private List<Point> polygonList = new ArrayList<>();
     private final PolygonRasterize polygonRasterize;
     private ScanLine scanline;
+    private Pentagon pentagon;
 
 
     public Controller2d(Panel panel) {
@@ -78,13 +81,16 @@ public class Controller2d {
                 }
 
                 if (mode == 2 && polygonList.size() != 0) { // Vykreslovani car vedoucich k novemu vrcholu
-                    /*int tmp = polygonList.size() - 1;
-                    line = new Line(polygonList.get(0).getX(), polygonList.get(0).getY(), e.getX(), e.getY());
-                    lineRasterize.rasterize(line);
-                    line = new Line(polygonList.get(tmp).getX(), polygonList.get(tmp).getY(), e.getX(), e.getY());
-                    lineRasterize.rasterize(line);
-                    */
                     line = polygonRasterize.newLine(polygon,e.getX(), e.getY());
+                }
+                if(mode == 5){
+                    pentagon = new Pentagon(new Point(x1,y1), new Point(e.getX(), e.getY()));
+                    polygonRasterize.rasterize(pentagon);
+                }
+                if(mode == 6){
+                    int tmp = polygon.getClosestPoint(e.getX(), e.getY());
+                    polygon.editPoint(tmp,e.getX(),e.getY());
+                    repaintPolygon();
                 }
 
                 panel.repaint();
@@ -104,16 +110,28 @@ public class Controller2d {
                         repaintPolygon();
                     }
                 }
-                if(mode == 3){
+                if(mode == 3){ // Pouzije seedfill
                     seminko = new SeedFill(panel.getRaster(),x1,y1,0xffff00);
                     seminko.fill();
-                    panel.repaint();
+
                 }
-                if(mode == 4){
+                if(mode == 4){ // Pouzije Scanline
                     scanline = new ScanLine(polygonRasterize,lineRasterize,polygon);
                     scanline.fill();
-                    panel.repaint();
+
                 }
+                if(mode == 5){
+
+                }
+                if(mode == 7){ // Smazani vrcholu
+                    int tmp = polygon.getClosestPoint(e.getX(), e.getY());
+                    polygon.removePoint(tmp);
+                    repaintPolygon();
+
+
+                }
+
+                panel.repaint();
 
             }
         });
@@ -145,6 +163,18 @@ public class Controller2d {
                     System.out.println("Jste v rezimu scanline");
                         mode = 4;
 
+                }
+                if(key == 'e' || key == 'E') {
+                    System.out.println("Jste v rezimu Pentagon");
+                    mode = 5;
+                }
+                if(key == 'o' || key == 'O') {
+                    System.out.println("Jste v rezimu editace vrcholu");
+                    mode = 6;
+                }
+                if(key == 'i' || key == 'I') {
+                    System.out.println("Jste v rezimu mazani vrcholu");
+                    mode = 7;
                 }
 
 
