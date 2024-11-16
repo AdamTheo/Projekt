@@ -9,6 +9,7 @@ import rasterizers.PolygonRasterize;
 import fill.SeedFill;
 import fill.ScanLine;
 import model.Pentagon;
+import clipper.Clip;
 
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -33,6 +34,9 @@ public class Controller2d {
     private final PolygonRasterize polygonRasterize;
     private ScanLine scanline;
     private Pentagon pentagon;
+    private Polygon clippingPolygon;
+    private Polygon clippedPolygon;
+    private Clip clipper;
 
 
     public Controller2d(Panel panel) {
@@ -41,6 +45,8 @@ public class Controller2d {
         polygonRasterize = new PolygonRasterize(lineRasterize);
         initListeners();
         polygon = new Polygon();
+        clippingPolygon = new Polygon();
+        clippedPolygon = new Polygon();
         panel.setFocusable(true);
         panel.requestFocusInWindow();
 
@@ -48,9 +54,9 @@ public class Controller2d {
 
     private void repaintPolygon() {
         panel.clear();
-        polygonList = polygon.getPoints();
 
         polygonRasterize.rasterize(polygon);
+        polygonRasterize.rasterize(clippingPolygon);
 
         panel.repaint();
     }
@@ -73,6 +79,7 @@ public class Controller2d {
             public void mouseDragged(MouseEvent e) { //Vykresluje v realnem case novou caru, kterou tvorime
                 panel.clear();
                 polygonRasterize.rasterize(polygon);
+                polygonRasterize.rasterize(clippingPolygon);
                 polygonList = polygon.getPoints();
                 //Zde se jiz nevykresluji jiz ulozene veci, tady se resi co se ma vykreslovat dal.. kuprikladu jestli rovna cara, polygon atd.
                 if (polygonList.size() == 0 && mode == 2) { //ROVNE CARY
@@ -92,6 +99,16 @@ public class Controller2d {
                     polygon.editPoint(tmp,e.getX(),e.getY());
                     repaintPolygon();
                 }
+
+                if(clippingPolygon.getNumberOfPoints() == 0 && mode == 8){
+                    line = new Line(x1, y1, e.getX(), e.getY());
+                    lineRasterize.rasterize(line);
+                }
+
+                if(mode == 8 && clippingPolygon.size() !=0){
+                    line = polygonRasterize.newLine(clippingPolygon,e.getX(), e.getY());
+                }
+
 
                 panel.repaint();
             }
@@ -127,8 +144,27 @@ public class Controller2d {
                     int tmp = polygon.getClosestPoint(e.getX(), e.getY());
                     polygon.removePoint(tmp);
                     repaintPolygon();
+                }
+                if(mode == 8){
+                    if(clippingPolygon.getNumberOfPoints() == 0){
+                        clippingPolygon.addPoint(x1, y1);
+                        clippingPolygon.addPoint(line.getX2(), line.getY2());
+                    } else {
+                        clippingPolygon.addPoint(line.getX2(), line.getY2());
+                        repaintPolygon();
+                    }
+                }
+                //Clipovani
+                if(polygon.size() > 2 && clippingPolygon.size() > 2){
+                    clipper = new Clip(polygon,clippingPolygon);
+                    clippedPolygon = clipper.clip();
+                    LineRasterize line2 = new LineTrivial(panel.getRaster());
+                    line2.setColor(0x0000ff);
+                    PolygonRasterize polygon2= new PolygonRasterize(line2);
+                    polygon2.rasterize(clippedPolygon);
 
-
+                    //ScanLine clippedFill = new ScanLine(polygonRasterize,lineRasterize,clippedPolygon);
+                    //clippedFill.fill();
                 }
 
                 panel.repaint();
@@ -148,6 +184,7 @@ public class Controller2d {
                     panel.clear();
                     panel.repaint();
                     polygon.clearPoints();
+                    pentagon.clearPoints();
 
                 }
                 if(key == 's' || key == 'S') {
@@ -175,6 +212,10 @@ public class Controller2d {
                 if(key == 'i' || key == 'I') {
                     System.out.println("Jste v rezimu mazani vrcholu");
                     mode = 7;
+                }
+                if(key == 'u' || key == 'U') {
+                    System.out.println("Kreslite orezavaci polygon");
+                    mode = 8;
                 }
 
 

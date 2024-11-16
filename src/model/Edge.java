@@ -1,5 +1,8 @@
 package model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Edge {
     private int x1, x2, y1, y2;
 
@@ -46,7 +49,7 @@ public class Edge {
         }
     }
     public boolean isIntersectionAdvanced(int x, int y){
-        if(y >= y1 && y < y2 && x >= x1){
+        if(y >= y1 && y < y2) {
             return true;
         }else{
             return false;
@@ -63,6 +66,59 @@ public class Edge {
         float x = ((float) y - q) / k;
         return Math.round(x);
 
+    }
+    public Point findIntersection(List<Edge> list){
+        int A1 = y2-y1;
+        int B1 = x2-x1;
+        int C1 = x2*y1 - x1*y2;
+
+        for(int i = 0; i < list.size(); i++){
+            int x3 = list.get(i).getX1();
+            int y3 = list.get(i).getY1();
+            int x4 = list.get(i).getX2();
+            int y4 = list.get(i).getY2();
+
+            int A2 = y4-y3;
+            int B2 = x4-x3;
+            int C2 = x4*y3 - x3*y4;
+
+            float D =(float) A1 * B2 - (float)A2 * B1;
+            int x = Math.round((float)(B1 * C2 - B2 * C1) / D);
+            int y = Math.round((float)(A2 * C1 - A1 * C2) / D);
+
+            if(x >= x1 && x <= x2 && y >= y1 && y <= y2){
+                return new Point(x,y);
+            }
+        }
+
+        return null;
+    }
+
+    public Point findIntersection(Edge edge){
+        int A1 = y2-y1;
+        int B1 = x2-x1;
+        int C1 = x2*y1 - x1*y2;
+
+
+            int x3 = edge.getX1();
+            int y3 = edge.getY1();
+            int x4 = edge.getX2();
+            int y4 = edge.getY2();
+
+            int A2 = y4-y3;
+            int B2 = x4-x3;
+            int C2 = x4*y3 - x3*y4;
+
+            float D =(float) A1 * B2 - (float)A2 * B1;
+            int x = Math.round((float)(B1 * C2 - B2 * C1) / D);
+            int y = Math.round((float)(A2 * C1 - A1 * C2) / D);
+
+            if(x >= x1 && x <= x2 && y >= y1 && y <= y2){
+                return new Point(x,y);
+            }
+
+
+        return null;
     }
 
 

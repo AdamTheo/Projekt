@@ -1,18 +1,19 @@
 package fill;
-import model.*;
+
+import model.Edge;
+import model.Line;
+import model.Point;
+import model.Polygon;
 import rasterizers.LineRasterize;
 import rasterizers.PolygonRasterize;
-import rasterizers.LineTrivial;
-import model.Polygon;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 public class ScanLine implements Filler {
-    private PolygonRasterize polygonRasterize;
-    private LineRasterize lineRasterize;
-    private Polygon polygon;
+    private final PolygonRasterize polygonRasterize;
+    private final LineRasterize lineRasterize;
+    private final Polygon polygon;
     private int minY;
     private int maxY;
     List<Integer> intersections;
@@ -34,44 +35,38 @@ public class ScanLine implements Filler {
             Point p1 = polygon.getPoint(i);
             Point p2 = polygon.getPoint((i + 1) % polygon.size());
 
-            if(p1.getY() < minY){ // Rovnou ozkosuime min a max
+            if (p1.getY() < minY) { // Rovnou ozkosuime min a max
                 minY = p1.getY();
             }
-            if(p2.getY() > maxY){
+            if (p2.getY() > maxY) {
                 maxY = p2.getY();
             }
 
             Edge edge = new Edge(p1.getX(), p1.getY(), p2.getX(), p2.getY());
             // hranu uložím se seznamu
-            if(!edge.isHorizontal()) {
+            if (!edge.isHorizontal()) {
                 edge.orientate();
                 edges.add(edge);
             }
         }
-        for(int y = minY; y <= maxY; y++) {
+        for (int y = minY; y <= maxY; y++) {
 
             intersections = new ArrayList<>();
 
             for (Edge edge : edges) {
-                if(edge.isIntersection(y)){
+                if (edge.isIntersection(y)) {
                     intersections.add(edge.intersectionX(y));
                 }
             }
 
-            //Collections.sort(intersections);
-            sortIntersections(0,intersections.size()-1);
+            sortIntersections(0, intersections.size() - 1);
 
-            for(int i = 0; i<intersections.size()-1; i += 2){
-                lineRasterize.rasterize(new Line(intersections.get(i),y, intersections.get(i+1),y ));
+            for (int i = 0; i < intersections.size() - 1; i += 2) {
+                lineRasterize.rasterize(new Line(intersections.get(i), y, intersections.get(i + 1), y));
             }
-
-
-
-
         }
-
-
     }
+
     public void sortIntersections(int start, int end) { // POuzijeme rekurzivni quicksort
         if (start < end) {
             int index = divide(start, end);
@@ -80,9 +75,10 @@ public class ScanLine implements Filler {
             sortIntersections(index + 1, end);
         }
     }
+
     public int divide(int start, int end) {
         int pivot = intersections.get(end);
-        int i = start-1;
+        int i = start - 1;
 
         for (int j = start; j < end; j++) {
             if (intersections.get(j) <= pivot) {
@@ -90,14 +86,14 @@ public class ScanLine implements Filler {
 
                 int tmp = intersections.get(i);
                 intersections.set(i, intersections.get(j));
-                intersections.set(j,tmp);
+                intersections.set(j, tmp);
             }
         }
 
-        int tmp = intersections.get(i+1);
-        intersections.set(i+1, intersections.get(end));
-        intersections.set(end,tmp);
+        int tmp = intersections.get(i + 1);
+        intersections.set(i + 1, intersections.get(end));
+        intersections.set(end, tmp);
 
-        return i+1;
+        return i + 1;
     }
 }

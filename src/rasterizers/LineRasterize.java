@@ -20,6 +20,8 @@ public abstract class LineRasterize {
         this.color = color;
     }
 
+
+
     public void rasterize(Line line) {
 
     }

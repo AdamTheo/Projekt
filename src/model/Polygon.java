@@ -8,6 +8,9 @@ public class Polygon {
 
     public Polygon() {
     }
+    public Polygon(Polygon polygon){
+        points.addAll(polygon.getPoints());
+    }
 
     public List<Point> getPoints() {
         return points;
@@ -20,6 +23,11 @@ public class Polygon {
     public void addPoint(int x, int y) {
         points.add(new Point(x, y));
     }
+
+    public void addPoint(Point point) {
+        points.add(new Point(point.getX(),point.getY()));
+    }
+
 
     public Point getPoint(int i) {
         return points.get(i);
