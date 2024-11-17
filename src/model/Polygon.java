@@ -43,7 +43,7 @@ public class Polygon {
         float distance = (float) Math.sqrt((Math.pow(x - points.get(0).getX(), 2) + Math.pow(y - points.get(0).getY(), 2)));
         int indexResult = 0;
 
-        for (int i = 1; i < getNumberOfPoints(); i++) {
+        for (int i = 1; i < size(); i++) {
             float tmp = (float) Math.sqrt((Math.pow(x - points.get(i).getX(), 2) + Math.pow(y - points.get(i).getY(), 2)));
             if (tmp < distance) {
                 distance = tmp;
@@ -60,7 +60,7 @@ public class Polygon {
         float distance = (float) Math.sqrt((Math.pow(x - points.get(0).getX(), 2) + Math.pow(y - points.get(0).getY(), 2)));
 
 
-        for (int i = 1; i < getNumberOfPoints(); i++) {
+        for (int i = 1; i < size(); i++) {
             float tmp = (float) Math.sqrt((Math.pow(x - points.get(i).getX(), 2) + Math.pow(y - points.get(i).getY(), 2)));
             if (tmp < distance) {
                 distance = tmp;
