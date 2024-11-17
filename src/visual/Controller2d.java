@@ -85,16 +85,23 @@ public class Controller2d {
                 if (mode == 2 && polygon.size() != 0) { // Vykreslovani car vedoucich k novemu vrcholu
                     line = polygonRasterize.newLine(polygon, e.getX(), e.getY());
                 }
+
                 if (mode == 5) {
                     pentagon = new Pentagon(new Point(x1, y1), new Point(e.getX(), e.getY()));
                 }
-                if (mode == 6) {
-                    int tmp = polygon.getClosestPoint(e.getX(), e.getY());
-                    polygon.editPoint(tmp, e.getX(), e.getY());
+
+                if (mode == 6 && (clippingPolygon.size() !=0 || polygon.size() !=0)) {
+                    if(polygon.getDistance(e.getX(),e.getY()) < clippingPolygon.getDistance(e.getX(),e.getY())) {
+                        int tmp = polygon.getClosestPoint(e.getX(), e.getY());
+                        polygon.editPoint(tmp, e.getX(), e.getY());
+                    }else{
+                        int tmp = clippingPolygon.getClosestPoint(e.getX(), e.getY());
+                        clippingPolygon.editPoint(tmp, e.getX(), e.getY());
+                    }
                     repaintPolygon();
                 }
 
-                if (clippingPolygon.getNumberOfPoints() == 0 && mode == 8) {
+                if (clippingPolygon.size() == 0 && mode == 8) {
                     line = new Line(x1, y1, e.getX(), e.getY());
                     clipLine.rasterize(line);
                 }
@@ -111,7 +118,7 @@ public class Controller2d {
             public void mouseReleased(MouseEvent e) {
 
                 if (mode == 2) { // Pridavame do polygonu
-                    if (polygon.getNumberOfPoints() == 0) {
+                    if (polygon.size() == 0) {
                         polygon.addPoint(x1, y1);
                         polygon.addPoint(line.getX2(), line.getY2());
 
@@ -126,24 +133,42 @@ public class Controller2d {
 
                 }
                 if (mode == 4) { // Pouzije Scanline
-                    scanline = new ScanLine(polygonRasterize, lineRasterize, polygon);
+                    scanline = new ScanLine(polygonRasterize, clipLine, polygon);
                     scanline.fill();
+                    polygonRasterize.rasterize(polygon);
 
                 }
 
-                if (mode == 7) { // Smazani vrcholu
-                    int tmp = polygon.getClosestPoint(e.getX(), e.getY());
-                    polygon.removePoint(tmp);
+                if (mode == 7 && (clippingPolygon.size() !=0 || polygon.size() !=0)) { // Smazani vrcholu
+
+                    if(polygon.getDistance(e.getX(),e.getY()) < clippingPolygon.getDistance(e.getX(),e.getY())) {
+                        int tmp = polygon.getClosestPoint(e.getX(), e.getY());
+                        polygon.removePoint(tmp);
+                    }else{
+                        int tmp = clippingPolygon.getClosestPoint(e.getX(), e.getY());
+                        clippingPolygon.removePoint(tmp);
+                    }
+
                     repaintPolygon();
                 }
                 if (mode == 8) {
-                    if (clippingPolygon.getNumberOfPoints() == 0) {
+                    if (clippingPolygon.size() == 0) {
                         clippingPolygon.addPoint(x1, y1);
                         clippingPolygon.addPoint(line.getX2(), line.getY2());
                     } else {
                         clippingPolygon.addPoint(line.getX2(), line.getY2());
                         repaintPolygon();
                     }
+                }
+                if(mode ==9 && (clippingPolygon.size() !=0 || polygon.size() !=0)){
+                    if(polygon.getDistance(e.getX(),e.getY()) < clippingPolygon.getDistance(e.getX(),e.getY())) {
+                        int tmp = polygon.getClosestPoint(e.getX(), e.getY());
+                        polygon.addPointEdit(tmp,e.getX(),e.getY());
+                    }else{
+                        int tmp = clippingPolygon.getClosestPoint(e.getX(), e.getY());
+                        clippingPolygon.addPointEdit(tmp,e.getX(),e.getY());
+                    }
+                    repaintPolygon();
                 }
                 //Clipovani
                 /*if(polygon.size() > 2 && clippingPolygon.size() > 2){
@@ -209,6 +234,10 @@ public class Controller2d {
                 if (key == 'u' || key == 'U') {
                     System.out.println("Kreslite orezavaci polygon");
                     mode = 8;
+                }
+                if(key == 'l' || key == 'L') {
+                    System.out.println("Pridavete vrcholy do polygonu ");
+                    mode = 9;
                 }
             }
         });
