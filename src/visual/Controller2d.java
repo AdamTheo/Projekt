@@ -1,42 +1,39 @@
 package visual;
 
+import clipper.Clip;
+import fill.ScanLine;
+import fill.SeedFill;
 import model.Line;
+import model.Pentagon;
 import model.Point;
 import model.Polygon;
 import rasterizers.LineRasterize;
 import rasterizers.LineTrivial;
 import rasterizers.PolygonRasterize;
-import fill.SeedFill;
-import fill.ScanLine;
-import model.Pentagon;
-import clipper.Clip;
 
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.List;
-
 
 
 public class Controller2d {
     private final Panel panel;
     private final LineRasterize lineRasterize;
+    private final Polygon polygon;
+    private final PolygonRasterize polygonRasterize;
     private int x1;
     private int y1;
     private Line line;
     private int mode = 2; // Rikame, v jakem modu je aplikace. Vychozi stav je mod 1, tedy usecky
-
     private SeedFill seminko;
-    private final Polygon polygon;
-    private List<Point> polygonList = new ArrayList<>();
-    private final PolygonRasterize polygonRasterize;
     private ScanLine scanline;
     private Pentagon pentagon;
-    private Polygon clippingPolygon;
-    private Polygon clippedPolygon;
+    private final Polygon clippingPolygon;
+    private final Polygon clippedPolygon;
     private Clip clipper;
+    private final PolygonRasterize clipperRasterize;
+    private final LineRasterize clipLine;
 
 
     public Controller2d(Panel panel) {
@@ -47,17 +44,19 @@ public class Controller2d {
         polygon = new Polygon();
         clippingPolygon = new Polygon();
         clippedPolygon = new Polygon();
+        pentagon = new Pentagon();
         panel.setFocusable(true);
         panel.requestFocusInWindow();
+        clipLine = new LineTrivial(panel.getRaster(), 0x0000ff);
+        clipperRasterize = new PolygonRasterize(clipLine);
 
     }
 
     private void repaintPolygon() {
         panel.clear();
-
         polygonRasterize.rasterize(polygon);
-        polygonRasterize.rasterize(clippingPolygon);
-
+        clipperRasterize.rasterize(clippingPolygon);
+        polygonRasterize.rasterize(pentagon);
         panel.repaint();
     }
 
@@ -68,8 +67,6 @@ public class Controller2d {
             public void mousePressed(MouseEvent e) { // Ukladani zacatecniho bodu
                 x1 = e.getX();
                 y1 = e.getY();
-
-
             }
         });
 
@@ -78,37 +75,33 @@ public class Controller2d {
             @Override
             public void mouseDragged(MouseEvent e) { //Vykresluje v realnem case novou caru, kterou tvorime
                 panel.clear();
-                polygonRasterize.rasterize(polygon);
-                polygonRasterize.rasterize(clippingPolygon);
-                polygonList = polygon.getPoints();
+                repaintPolygon();
                 //Zde se jiz nevykresluji jiz ulozene veci, tady se resi co se ma vykreslovat dal.. kuprikladu jestli rovna cara, polygon atd.
-                if (polygonList.size() == 0 && mode == 2) { //ROVNE CARY
+                if (polygon.size() == 0 && mode == 2) { //ROVNE CARY
                     line = new Line(x1, y1, e.getX(), e.getY());
                     lineRasterize.rasterize(line);
                 }
 
-                if (mode == 2 && polygonList.size() != 0) { // Vykreslovani car vedoucich k novemu vrcholu
-                    line = polygonRasterize.newLine(polygon,e.getX(), e.getY());
+                if (mode == 2 && polygon.size() != 0) { // Vykreslovani car vedoucich k novemu vrcholu
+                    line = polygonRasterize.newLine(polygon, e.getX(), e.getY());
                 }
-                if(mode == 5){
-                    pentagon = new Pentagon(new Point(x1,y1), new Point(e.getX(), e.getY()));
-                    polygonRasterize.rasterize(pentagon);
+                if (mode == 5) {
+                    pentagon = new Pentagon(new Point(x1, y1), new Point(e.getX(), e.getY()));
                 }
-                if(mode == 6){
+                if (mode == 6) {
                     int tmp = polygon.getClosestPoint(e.getX(), e.getY());
-                    polygon.editPoint(tmp,e.getX(),e.getY());
+                    polygon.editPoint(tmp, e.getX(), e.getY());
                     repaintPolygon();
                 }
 
-                if(clippingPolygon.getNumberOfPoints() == 0 && mode == 8){
+                if (clippingPolygon.getNumberOfPoints() == 0 && mode == 8) {
                     line = new Line(x1, y1, e.getX(), e.getY());
-                    lineRasterize.rasterize(line);
+                    clipLine.rasterize(line);
                 }
 
-                if(mode == 8 && clippingPolygon.size() !=0){
-                    line = polygonRasterize.newLine(clippingPolygon,e.getX(), e.getY());
+                if (mode == 8 && clippingPolygon.size() != 0) {
+                    line = clipperRasterize.newLine(clippingPolygon, e.getX(), e.getY());
                 }
-
 
                 panel.repaint();
             }
@@ -127,26 +120,24 @@ public class Controller2d {
                         repaintPolygon();
                     }
                 }
-                if(mode == 3){ // Pouzije seedfill
-                    seminko = new SeedFill(panel.getRaster(),x1,y1,0xffff00);
+                if (mode == 3) { // Pouzije seedfill
+                    seminko = new SeedFill(panel.getRaster(), x1, y1, 0xffff00);
                     seminko.fill();
 
                 }
-                if(mode == 4){ // Pouzije Scanline
-                    scanline = new ScanLine(polygonRasterize,lineRasterize,polygon);
+                if (mode == 4) { // Pouzije Scanline
+                    scanline = new ScanLine(polygonRasterize, lineRasterize, polygon);
                     scanline.fill();
 
                 }
-                if(mode == 5){
 
-                }
-                if(mode == 7){ // Smazani vrcholu
+                if (mode == 7) { // Smazani vrcholu
                     int tmp = polygon.getClosestPoint(e.getX(), e.getY());
                     polygon.removePoint(tmp);
                     repaintPolygon();
                 }
-                if(mode == 8){
-                    if(clippingPolygon.getNumberOfPoints() == 0){
+                if (mode == 8) {
+                    if (clippingPolygon.getNumberOfPoints() == 0) {
                         clippingPolygon.addPoint(x1, y1);
                         clippingPolygon.addPoint(line.getX2(), line.getY2());
                     } else {
@@ -155,7 +146,7 @@ public class Controller2d {
                     }
                 }
                 //Clipovani
-                if(polygon.size() > 2 && clippingPolygon.size() > 2){
+                /*if(polygon.size() > 2 && clippingPolygon.size() > 2){
                     clipper = new Clip(polygon,clippingPolygon);
                     clippedPolygon = clipper.clip();
                     LineRasterize line2 = new LineTrivial(panel.getRaster());
@@ -165,7 +156,7 @@ public class Controller2d {
 
                     //ScanLine clippedFill = new ScanLine(polygonRasterize,lineRasterize,clippedPolygon);
                     //clippedFill.fill();
-                }
+                }*/
 
                 panel.repaint();
 
@@ -185,41 +176,40 @@ public class Controller2d {
                     panel.repaint();
                     polygon.clearPoints();
                     pentagon.clearPoints();
+                    clippedPolygon.clearPoints();
+                    clippingPolygon.clearPoints();
 
                 }
-                if(key == 's' || key == 'S') {
+                if (key == 's' || key == 'S') {
                     System.out.println("Jste v rezimu seedfill");
                     mode = 3;
                 }
 
-                if(key == 'p' || key == 'P') {
+                if (key == 'p' || key == 'P') {
                     System.out.println("Jste v rezimu kresleni polygonu");
                     mode = 2;
                 }
-                if(key == 'f' || key == 'F') {
+                if (key == 'f' || key == 'F') {
                     System.out.println("Jste v rezimu scanline");
-                        mode = 4;
+                    mode = 4;
 
                 }
-                if(key == 'e' || key == 'E') {
+                if (key == 'e' || key == 'E') {
                     System.out.println("Jste v rezimu Pentagon");
                     mode = 5;
                 }
-                if(key == 'o' || key == 'O') {
+                if (key == 'o' || key == 'O') {
                     System.out.println("Jste v rezimu editace vrcholu");
                     mode = 6;
                 }
-                if(key == 'i' || key == 'I') {
+                if (key == 'i' || key == 'I') {
                     System.out.println("Jste v rezimu mazani vrcholu");
                     mode = 7;
                 }
-                if(key == 'u' || key == 'U') {
+                if (key == 'u' || key == 'U') {
                     System.out.println("Kreslite orezavaci polygon");
                     mode = 8;
                 }
-
-
-
             }
         });
 

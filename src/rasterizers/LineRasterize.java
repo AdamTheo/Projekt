@@ -1,10 +1,7 @@
 package rasterizers;
 
 import model.Line;
-
 import raster.Raster;
-
-import java.awt.image.BufferedImage;
 
 public abstract class LineRasterize {
     protected final Raster raster;
@@ -19,7 +16,6 @@ public abstract class LineRasterize {
         this.raster = raster;
         this.color = color;
     }
-
 
 
     public void rasterize(Line line) {

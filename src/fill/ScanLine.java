@@ -14,9 +14,9 @@ public class ScanLine implements Filler {
     private final PolygonRasterize polygonRasterize;
     private final LineRasterize lineRasterize;
     private final Polygon polygon;
+    List<Integer> intersections;
     private int minY;
     private int maxY;
-    List<Integer> intersections;
 
     public ScanLine(PolygonRasterize polygonRasterize, LineRasterize lineRasterize, Polygon polygon) {
         this.polygonRasterize = polygonRasterize;

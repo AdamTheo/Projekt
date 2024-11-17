@@ -8,7 +8,8 @@ public class Polygon {
 
     public Polygon() {
     }
-    public Polygon(Polygon polygon){
+
+    public Polygon(Polygon polygon) {
         points.addAll(polygon.getPoints());
     }
 
@@ -25,7 +26,7 @@ public class Polygon {
     }
 
     public void addPoint(Point point) {
-        points.add(new Point(point.getX(),point.getY()));
+        points.add(new Point(point.getX(), point.getY()));
     }
 
 
@@ -57,9 +58,10 @@ public class Polygon {
         return indexResult;
     }
 
-    public void editPoint(int i,int x, int y) {
+    public void editPoint(int i, int x, int y) {
         points.set(i, new Point(x, y));
     }
+
     public void removePoint(int i) {
         points.remove(i);
 

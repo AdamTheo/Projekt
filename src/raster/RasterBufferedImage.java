@@ -6,9 +6,9 @@ import java.awt.image.BufferedImage;
 
 public class RasterBufferedImage implements Raster {
 
-    private BufferedImage image;
-    private int width;
-    private int height;
+    private final BufferedImage image;
+    private final int width;
+    private final int height;
 
     public RasterBufferedImage(int width, int height) {
         image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
@@ -18,7 +18,7 @@ public class RasterBufferedImage implements Raster {
 
     @Override
     public void setPixel(int x, int y, int value) {
-        if((x > 0 && x < width) && (y > 0 && y < height)) {
+        if ((x > 0 && x < width) && (y > 0 && y < height)) {
             image.setRGB(x, y, value);
         }
     }

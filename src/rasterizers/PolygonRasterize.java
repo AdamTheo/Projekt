@@ -1,17 +1,16 @@
 package rasterizers;
+
 import model.Line;
 import model.Point;
 import model.Polygon;
-
 
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class PolygonRasterize
-{
-    private LineRasterize lineRasterizer;
-    private  List<Point> polygonList = new ArrayList<Point>();
+public class PolygonRasterize {
+    private final LineRasterize lineRasterizer;
+    private List<Point> polygonList = new ArrayList<Point>();
 
     public PolygonRasterize(LineRasterize lineRasterizer) {
         this.lineRasterizer = lineRasterizer;
@@ -30,7 +29,8 @@ public class PolygonRasterize
         }
 
     }
-    public Line newLine(Polygon polygon,int x, int y){
+
+    public Line newLine(Polygon polygon, int x, int y) {
         polygonList = polygon.getPoints();
         int tmp = polygonList.size() - 1;
         Line line;

@@ -1,8 +1,6 @@
 package rasterizers;
 
 import model.Line;
-
-import java.awt.image.BufferedImage;
 import raster.Raster;
 
 public class LineTrivial extends LineRasterize {
@@ -59,8 +57,6 @@ public class LineTrivial extends LineRasterize {
             }
         }
     }
-
-
 
 
 }

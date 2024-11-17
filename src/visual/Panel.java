@@ -1,9 +1,10 @@
 package visual;
 
+import raster.RasterBufferedImage;
+
 import javax.swing.*;
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import raster.RasterBufferedImage;
+
 public class Panel extends JPanel {
     private final RasterBufferedImage raster;
 
