@@ -17,10 +17,6 @@ public class Polygon {
         return points;
     }
 
-    public int getNumberOfPoints() {
-        return points.size();
-    }
-
     public void addPoint(int x, int y) {
         points.add(new Point(x, y));
     }
@@ -57,6 +53,22 @@ public class Polygon {
         }
         return indexResult;
     }
+    public float getDistance(int x, int y) {
+        if(points.isEmpty()){
+            return Float.MAX_VALUE;
+        }
+        float distance = (float) Math.sqrt((Math.pow(x - points.get(0).getX(), 2) + Math.pow(y - points.get(0).getY(), 2)));
+
+
+        for (int i = 1; i < getNumberOfPoints(); i++) {
+            float tmp = (float) Math.sqrt((Math.pow(x - points.get(i).getX(), 2) + Math.pow(y - points.get(i).getY(), 2)));
+            if (tmp < distance) {
+                distance = tmp;
+            }
+
+        }
+        return distance;
+    }
 
     public void editPoint(int i, int x, int y) {
         points.set(i, new Point(x, y));
@@ -65,6 +77,9 @@ public class Polygon {
     public void removePoint(int i) {
         points.remove(i);
 
+    }
+    public void addPointEdit(int index,int x, int y){
+        points.add(index+1, new Point(x, y));
     }
 
 
